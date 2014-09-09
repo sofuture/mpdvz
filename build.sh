@@ -1,2 +1,2 @@
 #!/bin/sh
-clang -o mpdvz mpdvz.c
+cc -o mpdvz mpdvz.c
