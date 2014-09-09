@@ -8,8 +8,8 @@ fifo = os.open('/tmp/mpd.fifo', os.O_RDONLY)
 
 WANTED_BYTES = 4096
 
-left_min = -15.0
-left_max = 15.0
+left_min = -30
+left_max = 20
 span = left_max - left_min
 
 while True:
