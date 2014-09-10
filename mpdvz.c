@@ -12,51 +12,35 @@ typedef struct {
 } CBuf;
 
 
-void cb_init(CBuf *buf, int size){
+void cb_init(CBuf *buf, int size) {
     buf->size = size + 1;
     buf->start = 0;
     buf->end = 0;
     buf->buf = calloc(buf->size, sizeof(short));
 }
 
-void cb_write(CBuf *buf, short val){
+void cb_write(CBuf *buf, short val) {
     buf->buf[buf->end] = val;
     buf->end = (buf->end + 1) % buf->size;
-    if(buf->end == buf->start){
+    if(buf->end == buf->start) {
         buf->start = (buf->start + 1) % buf->size;
     }
 }
 
-short cb_read(CBuf *buf, int idx){
+short cb_read(CBuf *buf, int idx) {
     return buf->buf[(buf->start + idx) % buf->size];
 }
 
-void cb_debug(CBuf *buf){
-    for(int i = 0; i < buf->size - 1; i++){
+void cb_debug(CBuf *buf) {
+    for(int i = 0; i < buf->size - 1; i++) {
         printf("%d\n", cb_read(buf, i));
     }
 }
 
-void buf_test() {
-    CBuf cb;
-    cb_init(&cb, 100);
-
-    for(int i = 10; i < 160; i++){
-        cb_write(&cb, i);
-    }
-
-    cb_debug(&cb);
-
-    printf("%d %d %d", cb.size, cb.start, cb.end);
-}
-
-void init(){
+void init() {
     int rows, cols;
     initscr();
     getmaxyx(stdscr, rows, cols);
-
-
-
     refresh();
 }
 
@@ -71,7 +55,6 @@ int go() {
 
     CBuf cb;
     cb_init(&cb, 100);
-
 
     ptr_file = fopen("/tmp/mpd.fifo", "rb");
     if (!ptr_file)
@@ -90,9 +73,6 @@ int go() {
 }
 
 int main() {
-    buf_test();
-    //init();
     go();
-    //cleanup();
 }
 
