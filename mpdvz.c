@@ -2,13 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
-#include <math.h>
 #ifdef __linux__
 #include <sys/ioctl.h>
 #endif
 
 #include "ll.h"
+#include "termbox/src/termbox.h"
 
 int win_width, win_height, win_mode;
 
@@ -78,6 +77,9 @@ void paint(list *lines){
 
 int main() {
     getdims();
+
+    //tb_init();
+
     FILE *ptr_file;
     int BSZ = 1024;
     short buf[BSZ];
