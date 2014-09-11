@@ -8,8 +8,7 @@
 #include <sys/ioctl.h>
 #endif
 
-#include <ncurses.h>
-
+#include "ll.h"
 
 int win_width, win_height, win_mode;
 
@@ -64,52 +63,6 @@ static void getdims() {
     return;
 }
 
-typedef struct {
-    int size;
-    int start;
-    int end;
-    int *buf;
-} CBuf;
-
-
-void cb_init(CBuf *buf, int size) {
-    buf->size = size + 1;
-    buf->start = 0;
-    buf->end = 0;
-    buf->buf = calloc(buf->size, sizeof(int));
-}
-
-void cb_write(CBuf *buf, int val) {
-    buf->buf[buf->end] = val;
-    buf->end = (buf->end + 1) % buf->size;
-    if(buf->end == buf->start) {
-        buf->start = (buf->start + 1) % buf->size;
-    }
-}
-
-int cb_read(CBuf *buf, int idx) {
-    return buf->buf[(buf->start + idx) % buf->size];
-}
-
-void cb_debug(CBuf *buf) {
-    for(int i = 0; i < buf->size - 1; i++) {
-        int v = cb_read(buf, i);
-        float r = (v + 32767.0) / (32767.0 * 2.0);
-        printf("%f\n", r);
-    }
-}
-
-void init() {
-    int rows, cols;
-    initscr();
-    getmaxyx(stdscr, rows, cols);
-    refresh();
-}
-
-void cleanup() {
-    endwin();
-}
-
 void display(int v) {
     float r = (v + 32767.0) / (32767.0 * 2.0);
     int count = (int) (r * win_width);
@@ -119,13 +72,17 @@ void display(int v) {
     printf("\n");
 }
 
-int go() {
+void paint(list *lines){
+    return;
+}
+
+int main() {
+    getdims();
     FILE *ptr_file;
     int BSZ = 1024;
     short buf[BSZ];
 
-    CBuf cb;
-    cb_init(&cb, 100);
+    list *lines = ll_new();
 
     ptr_file = fopen("/tmp/mpd.fifo", "rb");
     if (!ptr_file)
@@ -135,21 +92,14 @@ int go() {
         for (int c = 0; c < BSZ; c++) {
             int cur = (int)buf[c];
             if(c % 128 == 0) {
-                //cb_write(&cb, (int)cur);
+                ll_add(cur, lines);
                 display(cur);
             }
         }
-        //cb_debug(&cb);
+        paint(lines);
     }
 
     fclose(ptr_file);
     return  0;
-}
-
-int main() {
-    //init();
-    getdims();
-    go();
-    //cleanup();
 }
 
