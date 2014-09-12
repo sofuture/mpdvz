@@ -97,7 +97,9 @@ int show_usage() {
 }
 
 int main(int argc, char *argv[]) {
-
+    FILE *ptr_file;
+    int BSZ = 1024;
+    short buf[BSZ];
     char *filename = NULL;
 
     if (argc > 1) {
@@ -116,10 +118,6 @@ int main(int argc, char *argv[]) {
     }
 
     getdims();
-
-    FILE *ptr_file;
-    int BSZ = 1024;
-    short buf[BSZ];
 
     ptr_file = fopen(filename, "rb");
     if (!ptr_file) {
