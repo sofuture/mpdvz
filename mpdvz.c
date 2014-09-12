@@ -81,22 +81,6 @@ void display(int v) {
     printf("\n\eM\eM");
 }
 
-void paint() {
-    int height = win_height;
-    int mystart = start + SCREEN_BUFFER_SIZE - height;
-    int total = 0;
-
-    for(int i = mystart; i < SCREEN_BUFFER_SIZE && total < height; i++){
-        //display(total++, vals[i]);
-        display(vals[i]);
-    }
-    for(int i = 0; i < start && total < height; i++){
-        //display(total++, vals[i]);
-        display(vals[i]);
-    }
-
-}
-
 int main() {
     getdims();
 
@@ -113,8 +97,6 @@ int main() {
             int cur = (int)buf[c];
             if(c % 128 == 0) {
                 display(cur);
-                //storev(cur);
-                //if(c % 512 == 0) paint();
             }
         }
     }

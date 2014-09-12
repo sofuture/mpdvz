@@ -1,3 +1,0 @@
-[submodule "termbox"]
-	path = termbox
-	url = git@github.com:nsf/termbox.git
