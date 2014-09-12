@@ -8,7 +8,9 @@
 #include <sys/ioctl.h>
 #endif
 
+char shutdown = 0;
 int win_width, win_height, win_mode;
+FILE *ptr_file;
 
 static int _getdims(int fd) {
 #ifdef TIOCGSIZE
@@ -101,8 +103,16 @@ void handle_resize(int signal) {
     getdims();
 }
 
+int cleanup() {
+    fclose(ptr_file);
+    return 0;
+}
+
+void handle_sigint(int signal) {
+    shutdown = 1;
+}
+
 int main(int argc, char *argv[]) {
-    FILE *ptr_file;
     int BSZ = 1024;
     short buf[BSZ];
     char *filename = NULL;
@@ -125,6 +135,7 @@ int main(int argc, char *argv[]) {
     getdims();
 
     signal(SIGWINCH, handle_resize);
+    signal(SIGINT, handle_sigint);
 
     ptr_file = fopen(filename, "rb");
     if (!ptr_file) {
@@ -132,7 +143,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    while (fread(buf, sizeof(short), BSZ, ptr_file) > 0) {
+    while (!shutdown && fread(buf, sizeof(short), BSZ, ptr_file) > 0) {
         for (int c = 0; c < BSZ; c++) {
             int cur = (int)buf[c];
             if(c % 128 == 0) {
@@ -141,7 +152,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    fclose(ptr_file);
-    return  0;
+    return cleanup();
 }
 
