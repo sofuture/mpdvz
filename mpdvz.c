@@ -71,14 +71,14 @@ void storev(int v){
 #endif
 }
 
-void display(int row, int v) {
+void display(int v) {
     float r = (v + 32767.0) / (32767.0 * 2.0);
     int count = (int) (r * win_width);
     int space = (win_width - count) / 2;
     for(int i = 0; i < space; i++) printf(" ");
     for(int i = 0; i < count; i++) printf("#");
     for(int i = 0; i < space - 1; i++) printf(" ");
-    printf("\n\eM");
+    printf("\n\eM\eM");
 }
 
 void paint() {
@@ -86,16 +86,16 @@ void paint() {
     int mystart = start + SCREEN_BUFFER_SIZE - height;
     int total = 0;
 
-
     for(int i = mystart; i < SCREEN_BUFFER_SIZE && total < height; i++){
-        display(total++, vals[i]);
+        //display(total++, vals[i]);
+        display(vals[i]);
     }
     for(int i = 0; i < start && total < height; i++){
-        display(total++, vals[i]);
+        //display(total++, vals[i]);
+        display(vals[i]);
     }
 
 }
-
 
 int main() {
     getdims();
@@ -112,8 +112,9 @@ int main() {
         for (int c = 0; c < BSZ; c++) {
             int cur = (int)buf[c];
             if(c % 128 == 0) {
-                storev(cur);
-                if(c % 512 == 0) paint();
+                display(cur);
+                //storev(cur);
+                //if(c % 512 == 0) paint();
             }
         }
     }
