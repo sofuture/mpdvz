@@ -1,7 +1,8 @@
-CFLAGS += -std=c11 -Wall -pedantic -O2
-LIBS += -lncurses
+CFLAGS += -std=c11 -Wall -O2
+TBCFLAGS = -c -Wall -O2
+LIBS +=
 
-OBJS = ll.o
+OBJS =
 
 .PHONY: all
 all: mpdvz mpdvz_debug
