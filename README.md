@@ -23,7 +23,9 @@ build:
 
 run:
 
-    ./mpdvz
+    ./mpdvz [-h|--help] [path to mpd fifo]
+
+    path defaults to /tmp/mpd.fifo
 
 etc
 ---
