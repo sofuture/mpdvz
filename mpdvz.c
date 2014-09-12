@@ -6,9 +6,6 @@
 #include <sys/ioctl.h>
 #endif
 
-//#include "ll.h"
-#include "termbox/src/termbox.h"
-
 int win_width, win_height, win_mode;
 
 static int _getdims(int fd) {
@@ -78,16 +75,17 @@ void display(int row, int v) {
     float r = (v + 32767.0) / (32767.0 * 2.0);
     int count = (int) (r * win_width);
     int space = (win_width - count) / 2;
-    for(int i = 0; i < space; i++) tb_change_cell(i, row, ' ', 0, 0);
-    for(int i = 0; i < count; i++) tb_change_cell(i + space, row, '#', 0, 0);
+    for(int i = 0; i < space; i++) printf(" ");
+    for(int i = 0; i < count; i++) printf("#");
+    for(int i = 0; i < space - 1; i++) printf(" ");
+    printf("\n\eM");
 }
 
 void paint() {
-    int height = tb_height();
+    int height = win_height;
     int mystart = start + SCREEN_BUFFER_SIZE - height;
     int total = 0;
 
-    tb_clear();
 
     for(int i = mystart; i < SCREEN_BUFFER_SIZE && total < height; i++){
         display(total++, vals[i]);
@@ -96,14 +94,11 @@ void paint() {
         display(total++, vals[i]);
     }
 
-    tb_present();
 }
 
 
 int main() {
     getdims();
-
-    tb_init();
 
     FILE *ptr_file;
     int BSZ = 1024;
@@ -118,7 +113,7 @@ int main() {
             int cur = (int)buf[c];
             if(c % 128 == 0) {
                 storev(cur);
-                paint();
+                if(c % 512 == 0) paint();
             }
         }
     }
