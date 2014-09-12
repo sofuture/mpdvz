@@ -87,7 +87,6 @@ void display(int v) {
     int space = (win_width - count) / 2;
     for(int i = 0; i < space; i++) printf(" ");
     for(int i = 0; i < count; i++) printf("#");
-    for(int i = 0; i < space - 1; i++) printf(" ");
     printf("\n\eM\eM");
 }
 
