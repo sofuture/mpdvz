@@ -1,7 +1,9 @@
 mpdvz
 =====
 
-VISUALIZE SHIT YO
+terminal visualizer for mpd
+
+![screenshot](http://i.imgur.com/KJ2J7Vy.png)
 
 instructions
 ------------
