@@ -6,7 +6,7 @@
 #include <sys/ioctl.h>
 #endif
 
-#include "ll.h"
+//#include "ll.h"
 #include "termbox/src/termbox.h"
 
 int win_width, win_height, win_mode;
@@ -62,29 +62,52 @@ static void getdims() {
     return;
 }
 
-void display(int v) {
-    float r = (v + 32767.0) / (32767.0 * 2.0);
-    int count = (int) (r * win_width);
-    for(int i = 0; i < count; i++){
-        printf("#");
-    }
-    printf("\n");
+#define SCREEN_BUFFER_SIZE 200
+int vals[SCREEN_BUFFER_SIZE];
+int start = 0;
+
+void storev(int v){
+    vals[start++] = v;
+    if(start == SCREEN_BUFFER_SIZE) start = 0;
+#ifdef DEBUG
+    printf("storing val in buf loc: %d\n", start);
+#endif
 }
 
-void paint(list *lines){
-    return;
+void display(int row, int v) {
+    float r = (v + 32767.0) / (32767.0 * 2.0);
+    int count = (int) (r * win_width);
+    int space = (win_width - count) / 2;
+    for(int i = 0; i < space; i++) tb_change_cell(i, row, ' ', 0, 0);
+    for(int i = 0; i < count; i++) tb_change_cell(i + space, row, '#', 0, 0);
 }
+
+void paint() {
+    int height = tb_height();
+    int mystart = start + SCREEN_BUFFER_SIZE - height;
+    int total = 0;
+
+    tb_clear();
+
+    for(int i = mystart; i < SCREEN_BUFFER_SIZE && total < height; i++){
+        display(total++, vals[i]);
+    }
+    for(int i = 0; i < start && total < height; i++){
+        display(total++, vals[i]);
+    }
+
+    tb_present();
+}
+
 
 int main() {
     getdims();
 
-    //tb_init();
+    tb_init();
 
     FILE *ptr_file;
     int BSZ = 1024;
     short buf[BSZ];
-
-    list *lines = ll_new();
 
     ptr_file = fopen("/tmp/mpd.fifo", "rb");
     if (!ptr_file)
@@ -94,11 +117,10 @@ int main() {
         for (int c = 0; c < BSZ; c++) {
             int cur = (int)buf[c];
             if(c % 128 == 0) {
-                ll_add(cur, lines);
-                display(cur);
+                storev(cur);
+                paint();
             }
         }
-        paint(lines);
     }
 
     fclose(ptr_file);
