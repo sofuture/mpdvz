@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #ifdef __linux__
 #include <sys/ioctl.h>
 #endif
@@ -96,6 +97,10 @@ int show_usage() {
     return 0;
 }
 
+void handle_resize(int signal) {
+    getdims();
+}
+
 int main(int argc, char *argv[]) {
     FILE *ptr_file;
     int BSZ = 1024;
@@ -118,6 +123,8 @@ int main(int argc, char *argv[]) {
     }
 
     getdims();
+
+    signal(SIGWINCH, handle_resize);
 
     ptr_file = fopen(filename, "rb");
     if (!ptr_file) {

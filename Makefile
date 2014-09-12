@@ -5,7 +5,7 @@ LIBS +=
 OBJS =
 
 .PHONY: all
-all: mpdvz mpdvz_debug
+all: mpdvz
 
 mpdvz: mpdvz.c ${OBJS}
 	$(CC) -o $@ $< $(CFLAGS) $(OBJS) $(LIBS)
