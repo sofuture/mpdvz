@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #ifdef __linux__
 #include <sys/ioctl.h>
@@ -11,7 +12,10 @@ int win_width, win_height, win_mode;
 static int _getdims(int fd) {
 #ifdef TIOCGSIZE
     struct ttysize ts;
-    if(ioctl(fd, TIOCGSIZE, &ts)) { perror(""); return -1; }
+    if(ioctl(fd, TIOCGSIZE, &ts)) {
+        perror("");
+        return -1;
+    }
     if(ts.ts_cols > 0) {
         win_width = ts.ts_cols;
         win_height = ts.ts_lines;
@@ -20,7 +24,10 @@ static int _getdims(int fd) {
     }
 #elif defined(TIOCGWINSZ)
     struct winsize ws;
-    if(ioctl(fd, TIOCGWINSZ, &ws)) { perror(""); return -1; }
+    if(ioctl(fd, TIOCGWINSZ, &ws)) {
+        perror("");
+        return -1;
+    }
     if(ws.ws_col > 0) {
         win_width = ws.ws_col;
         win_height = ws.ws_row;
@@ -44,7 +51,10 @@ static void getdims() {
     if(getenv("COLUMNS") && getenv("LINES")) {
         win_width = atoi(getenv("COLUMNS"));
         win_height= atoi(getenv("LINES"));
-        if(win_width > 0 && win_height > 0) { win_mode = 4; return; }
+        if(win_width > 0 && win_height > 0) {
+            win_mode = 4;
+            return;
+        }
     }
 #define STTY(x, y) \
     if((f = popen("stty " x " size", "r"))!=NULL) { \
@@ -63,7 +73,7 @@ static void getdims() {
 int vals[SCREEN_BUFFER_SIZE];
 int start = 0;
 
-void storev(int v){
+void storev(int v) {
     vals[start++] = v;
     if(start == SCREEN_BUFFER_SIZE) start = 0;
 #ifdef DEBUG
@@ -81,16 +91,42 @@ void display(int v) {
     printf("\n\eM\eM");
 }
 
-int main() {
+int show_usage() {
+    printf("Usage: mpdvz [-h|--help] [mpd fifo path]\n\n");
+    printf("  path defaults to /tmp/mpd.fifo\n");
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+
+    char *filename = NULL;
+
+    if (argc > 1) {
+        for (int i = 1; i < argc; i++) {
+            if (strncmp(argv[i], "--help", 6) == 0 ||
+                    strncmp(argv[i], "-h", 2) == 0) {
+                return show_usage();
+            } else {
+                filename = argv[i];
+            }
+        }
+    }
+
+    if(filename == NULL) {
+        filename = "/tmp/mpd.fifo";
+    }
+
     getdims();
 
     FILE *ptr_file;
     int BSZ = 1024;
     short buf[BSZ];
 
-    ptr_file = fopen("/tmp/mpd.fifo", "rb");
-    if (!ptr_file)
+    ptr_file = fopen(filename, "rb");
+    if (!ptr_file) {
+        printf("error: can't open %s\n", filename);
         return 1;
+    }
 
     while (fread(buf, sizeof(short), BSZ, ptr_file) > 0) {
         for (int c = 0; c < BSZ; c++) {
