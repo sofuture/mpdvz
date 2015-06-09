@@ -3,7 +3,7 @@ mpdvz
 
 terminal visualizer for mpd
 
-![screenshot](http://i.imgur.com/KJ2J7Vy.png)
+![screenshot](https://raw.githubusercontent.com/sofuture/mpdvz/master/mpdvz.gif)
 
 instructions
 ------------
